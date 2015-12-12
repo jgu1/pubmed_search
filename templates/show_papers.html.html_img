@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block body %}
+  <script src={{ url_for ('static',filename='jquery.min.js')}}></script>
+  <script src={{ url_for ('static',filename='main.js')}}></script>
+  {% if session.logged_in %}
+    <div style="width:50%">
+        <form action="{{ url_for('search') }}" method=post class=search >
+          <dl>
+            <dt>Disease/Trait:
+            <dd><input type=text size=30 name=disease>
+            <br>genes included<dd><input type=text size=30 name=genes_included>
+            <br>genes excluded<dd><input type=text size=30 name=genes_excluded>
+            <dd><input type=submit value=Search>
+          </dl>
+
+        </form>
+    </div>
+
+    <div id = "wordCloud" style="width:30%; float:right">
+        <img src="{{ url_for('static', filename='wordCloud.png') }}"></img> 
+    </div>
+
+
+    {% if papers %}
+    {% if count_dict %}
+      <ul class=choose_term>       
+         {% for key, value in count_dict.iteritems() %}
+          <li> <a href='/choose_term?gene={{ key }}'>{{key}}({{value}})</a>
+         {% endfor %}
+      </ul>
+    {% endif %}
+
+    {{ pagination.info }}
+    {{ pagination.links }}  
+      <ul class=papers>
+        {% for paper in papers %}
+        <li><a href="{{ paper.link|safe}}"><h2>{{ paper.title }}</h2></a>
+        <span>authors:</span>{{paper.authors_str|safe}}<br>
+        <span>journal:</span>{{paper.journal_title|safe}}<br>
+        <span>publish time:</span>{{paper.publish_time_str|safe}}<br>
+        {% if paper.keywords_str %}
+        <span>keywords:</span>{{ paper.keywords_str|safe }}<br>
+        {% endif %}
+        {% if paper.abstract %}
+        <span>abstract:</span>{{ paper.abstract|safe }}
+        {% else %}
+        no abstract found on original page for this paper
+        {% endif %}
+      {% else %}
+        <li><em>No Search Results</em>
+      {% endfor %}
+      </ul>
+    {{ pagination.links }}
+    {% else %}
+    Welcome!
+    {% endif %}
+  {% endif %}
+{% endblock %}
